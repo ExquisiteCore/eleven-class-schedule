@@ -1,5 +1,6 @@
 import { getSemesterStartDate, getSettings, type AppSettings } from "./settings";
 import { getCustomCourses } from "./customCourses";
+import { getImportedCourses } from "./importedCourses";
 
 export { type AppSettings } from "./settings";
 
@@ -21,7 +22,7 @@ export const DAY_NAMES = ["一", "二", "三", "四", "五", "六", "日"] as co
 export interface CourseEntry {
   id?: string; // present only on custom courses
   name: string;
-  type: "★" | "▲";
+  type: string; // ★, ▲, ☆, ●, ■, 〇, ◆
   teacher: string;
   location: string;
   room: string;
@@ -124,10 +125,13 @@ export function parseWeekRange(range: string): Set<number> {
   return weeks;
 }
 
-/** Get all courses (built-in + custom) for a given week and day */
+/** Get all courses (imported/built-in + custom) for a given week and day.
+ *  When imported courses exist, they replace the hardcoded ALL_COURSES. */
 export function getCoursesForWeekDay(week: number, day: number): CourseEntry[] {
+  const imported = getImportedCourses();
   const custom = getCustomCourses();
-  const all: CourseEntry[] = [...ALL_COURSES, ...custom];
+  const base = imported.length > 0 ? imported : ALL_COURSES;
+  const all: CourseEntry[] = [...base, ...custom];
   return all.filter(
     (c) => c.day === day && parseWeekRange(c.weekRange).has(week)
   );

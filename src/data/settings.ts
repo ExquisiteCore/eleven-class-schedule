@@ -2,6 +2,7 @@ export interface AppSettings {
   semesterStart: string; // ISO date string "YYYY-MM-DD"
   semesterName: string;
   totalWeeks: number;
+  jwxtUrl: string; // 教务系统 URL
 }
 
 const STORAGE_KEY = "app-settings";
@@ -10,6 +11,7 @@ const DEFAULTS: AppSettings = {
   semesterStart: "2026-02-23",
   semesterName: "2025-2026 第2学期",
   totalWeeks: 17,
+  jwxtUrl: "",
 };
 
 export function getSettings(): AppSettings {

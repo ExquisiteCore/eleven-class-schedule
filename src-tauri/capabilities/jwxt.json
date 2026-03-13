@@ -1,0 +1,12 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "jwxt-webview",
+  "description": "Capability for the JWXT WebView window to invoke commands",
+  "windows": ["jwxt"],
+  "remote": {
+    "urls": ["https://*.edu.cn/*", "http://*.edu.cn/*"]
+  },
+  "permissions": [
+    "core:default"
+  ]
+}

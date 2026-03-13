@@ -3,6 +3,7 @@ import Header from "./components/Header";
 import ScheduleGrid from "./components/ScheduleGrid";
 import HomePage from "./components/HomePage";
 import ProfilePage from "./components/ProfilePage";
+import ImportPage from "./components/ImportPage";
 import BottomNav from "./components/BottomNav";
 import CourseDetail from "./components/CourseDetail";
 import AddCourse from "./components/AddCourse";
@@ -16,6 +17,7 @@ function App() {
   const [tab, setTab] = useState("schedule");
   const [detailCourse, setDetailCourse] = useState<CourseEntry | null>(null);
   const [showAddCourse, setShowAddCourse] = useState(false);
+  const [showImport, setShowImport] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
@@ -38,6 +40,22 @@ function App() {
     setShowAddCourse(false);
     refresh();
   }, [refresh]);
+
+  const handleImported = useCallback(() => {
+    setShowImport(false);
+    setTab("schedule");
+    refresh();
+  }, [refresh]);
+
+  if (showImport) {
+    return (
+      <ImportPage
+        settings={settings}
+        onClose={() => setShowImport(false)}
+        onImported={handleImported}
+      />
+    );
+  }
 
   return (
     <div className="app-shell">
@@ -78,8 +96,10 @@ function App() {
         )}
         {tab === "profile" && (
           <ProfilePage
+            key={refreshKey}
             settings={settings}
             onSettingsChange={handleSettingsChange}
+            onOpenImport={() => setShowImport(true)}
           />
         )}
       </main>
