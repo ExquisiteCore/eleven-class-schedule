@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 \"C:/Users/xiaol/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.0.1/.claude/skills/ui-ux-pro-max/scripts/search.py\" \"university course schedule education modern minimalism mobile\" --design-system -p \"十一课程表\" 2>&1 || python \"C:/Users/xiaol/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.0.1/.claude/skills/ui-ux-pro-max/scripts/search.py\" \"university course schedule education modern minimalism mobile\" --design-system -p \"十一课程表\" 2>&1)",
+      "Bash(cd D:/project/eleven-class-schedule && npx tsc --noEmit 2>&1)"
+    ]
+  }
+}

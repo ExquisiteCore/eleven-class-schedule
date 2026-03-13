@@ -1,50 +1,105 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
+import { useState, useCallback } from "react";
+import Header from "./components/Header";
+import ScheduleGrid from "./components/ScheduleGrid";
+import HomePage from "./components/HomePage";
+import ProfilePage from "./components/ProfilePage";
+import BottomNav from "./components/BottomNav";
+import CourseDetail from "./components/CourseDetail";
+import AddCourse from "./components/AddCourse";
+import { getWeekNumber, type CourseEntry } from "./data/schedule";
+import { getSettings, type AppSettings } from "./data/settings";
 import "./App.css";
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  const [settings, setSettings] = useState<AppSettings>(() => getSettings());
+  const [week, setWeek] = useState(() => getWeekNumber(new Date(), settings));
+  const [tab, setTab] = useState("schedule");
+  const [detailCourse, setDetailCourse] = useState<CourseEntry | null>(null);
+  const [showAddCourse, setShowAddCourse] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
-  }
+  const refresh = useCallback(() => setRefreshKey((k) => k + 1), []);
+
+  const handleSettingsChange = useCallback((s: AppSettings) => {
+    setSettings(s);
+    setWeek(getWeekNumber(new Date(), s));
+  }, []);
+
+  const handleCourseClick = useCallback((course: CourseEntry) => {
+    setDetailCourse(course);
+  }, []);
+
+  const handleCourseDeleted = useCallback(() => {
+    setDetailCourse(null);
+    refresh();
+  }, [refresh]);
+
+  const handleCourseAdded = useCallback(() => {
+    setShowAddCourse(false);
+    refresh();
+  }, [refresh]);
 
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
-
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
+    <div className="app-shell">
+      {tab === "schedule" && (
+        <Header
+          week={week}
+          onWeekChange={setWeek}
+          settings={settings}
+          onAddCourse={() => setShowAddCourse(true)}
         />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
+      )}
+      {tab === "home" && (
+        <header className="page-header">
+          <span className="page-header-title">十一课程表</span>
+        </header>
+      )}
+      {tab === "profile" && (
+        <header className="page-header">
+          <span className="page-header-title">我的</span>
+        </header>
+      )}
+      <main className="app-main">
+        {tab === "home" && (
+          <HomePage
+            key={refreshKey}
+            week={week}
+            settings={settings}
+            onCourseClick={handleCourseClick}
+          />
+        )}
+        {tab === "schedule" && (
+          <ScheduleGrid
+            key={refreshKey}
+            week={week}
+            settings={settings}
+            onCourseClick={handleCourseClick}
+          />
+        )}
+        {tab === "profile" && (
+          <ProfilePage
+            settings={settings}
+            onSettingsChange={handleSettingsChange}
+          />
+        )}
+      </main>
+      <BottomNav active={tab} onChange={setTab} />
+
+      {detailCourse && (
+        <CourseDetail
+          course={detailCourse}
+          onClose={() => setDetailCourse(null)}
+          onDeleted={handleCourseDeleted}
+        />
+      )}
+
+      {showAddCourse && (
+        <AddCourse
+          onClose={() => setShowAddCourse(false)}
+          onAdded={handleCourseAdded}
+        />
+      )}
+    </div>
   );
 }
 
